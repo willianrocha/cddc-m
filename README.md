@@ -1,12 +1,12 @@
 # cddc-m
-#100diasdecodigo Bot 
+#[100diasdecodigo Bot](https://twitter.com/100ddc)
 
 O objetivo é analisar e estabelecer estatísticas relacionadas a
 [#100diasdecodigo](https://twitter.com/hashtag/100diasdecodigo?src=hash).
 
 #### Fase 1
  - [ ] Postar a quantidade de ocorrências diárias únicas por usuário.
- - [ ] Seguir de volta quem usar a #
+ - [x] Seguir de volta quem usar a #
 
 #### Fase 2
  - [ ] Postar usuários mais ativos e sua quantidade de dias seguidos
