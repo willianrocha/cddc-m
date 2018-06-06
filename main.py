@@ -15,32 +15,49 @@ api = twitter.Api(  consumer_key=c_key,
                     access_token_secret=a_secret)
 
 HASHTAG_FIND = '#100diasdecodigo'
+HASHTAG_ENGAGE = '#100diasdecodigo #100daysofcoding #DevsOnBeer'
 DATE_TODAY = datetime.today().strftime('%Y-%m-%d')
+LOG = False
+FOLLOW = False
 
-tweets_related =  api.GetSearch(term=HASHTAG_FIND, since=DATE_TODAY)
+def get_tweets(hashtag, day, api):
+    tweets_related =  api.GetSearch(term=hashtag, since=day)
+    # Convert to dictionary, 'cause reasons
+    tweets_dict = [json.loads(str(t)) for t in tweets_related]
+    return tweets_dict
 
-# follow back
-ids_follow_back = set([t.user.id for t in tweets_related])
-for user_id in ids_follow_back:
-    log = api.CreateFriendship(user_id=user_id)
+def follow_back(tweets, api):
+    ids_follow_back = set([t['user']['id'] for t in tweets])
+    for user_id in ids_follow_back:
+        log = api.CreateFriendship(user_id=user_id)
+        yield log
 
 ## Retweet filter
-# Retweets can be distinguished from typical Tweets by the existence of a 
-# retweeted_status attribute. 
-def filter_retweet(list_tweets):
-    return [t for t in list_tweets if not 'retweeted_status' in t.keys()]
+def filter_retweet(tweets):
+    return [t for t in tweets if not 'retweeted_status' in t.keys()]
 # Maybe useless
-def filter_exception_list(list_tweets):
+def filter_exception_list(tweets):
     exception_list = [
         1003579193907654657, # cemdiasdecodigo
         1003848514823213056, # _30days30sites
     ]
-    return [t for t in list_tweets if not t['user']['id'] in exception_list]
+    return [t for t in tweets if not t['user']['id'] in exception_list]
 
-## Count filtering
-# Convert to dictionary, 'cause reasons
-tweets_dict = [json.loads(str(t)) for t in tweets_related]
+def filter_tweets(tweets):
+    valid_tweets = filter_retweet(tweets)
+    valid_tweets = filter_exception_list(valid_tweets)
+    return valid_tweets
 
-valid_tweets = filter_retweet(tweets_dict)
-valid_tweets = filter_exception_list(valid_tweets)
-print(valid_tweets)
+tw = get_tweets(HASHTAG_FIND, DATE_TODAY, api)
+tw = filter_tweets(tw)
+for t in tw: print(t['user']['screen_name'])
+
+if FOLLOW:
+    for log_follow in follow_back(tw, api):
+        if LOG: print(log_follow)
+
+message = 'Relatório do desafio de 100 dias de Código! Hoje, {} usuários se \
+engajaram com o desafio {}'.format(len(tw), HASHTAG_ENGAGE)
+
+status = api.PostUpdate(message)
+print(status)
