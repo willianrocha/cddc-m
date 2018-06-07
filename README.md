@@ -5,7 +5,7 @@ O objetivo é analisar e estabelecer estatísticas relacionadas a
 [#100diasdecodigo](https://twitter.com/hashtag/100diasdecodigo?src=hash).
 
 #### Fase 1
- - [ ] Postar a quantidade de ocorrências diárias únicas por usuário.
+ - [x] Postar a quantidade de ocorrências diárias únicas por usuário.
  - [x] Seguir de volta quem usar a #
 
 #### Fase 2
