@@ -1,5 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 import twitter_interface
+import challengers
 
 sched = BlockingScheduler()
 
@@ -9,5 +10,7 @@ def scheduled_job():
     api = twitter_interface.connect()
     tw_f, tw_r = twitter_interface.run_daily(api)
     status = twitter_interface.post_daily(tweets=tw_f, api=api)
+    db, _ = challengers.connect_db()
+    status = challengers.insert_daily(db, tw_f)
 
 sched.start()
