@@ -1,5 +1,5 @@
 import os
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateMany, UpdateOne
 from datetime import datetime
 
 TWITTER_DATE_FORMAT = "%a %b %d %H:%M:%S %z %Y"
@@ -43,4 +43,28 @@ def update_daily(db, tweets):
     list_id_valid = [id['user']['id'] for id in tweets]
     status = udc.update_many({'user_id' : {'$nin': list_id_valid}},
         {'$inc':{'reset_counter' : 1}})
+    return status
+
+# Broken
+def update_challengers(db, tweets):
+    udc = db[C_UDC]
+    list_id_valid = [id['user']['id'] for id in tweets]
+    increment_work_days = UpdateMany(
+        {'user_id' : {'$in':list_id_valid}},
+        {'$inc': {'work_days': 1}})
+    increment_reset_counter = UpdateMany(
+        {'user_id' : {'$nin':list_id_valid}},
+        {'$inc': {'reset_counter': 1}})
+    insert_new = [UpdateOne(
+        {'user_id' : {'$nin':list_id_valid}},
+        {'$set': {
+            'user_id': t['user']['id'],
+            'screen_name':  t['user']['screen_name'],
+            'first_tweet_date': datetime.strptime(t['created_at'],
+                TWITTER_DATE_FORMAT),
+            'work_days' : 1,
+            'reset_counter' : 0
+        }}, upsert=True) for t in tweets]
+    requests = [increment_work_days, increment_reset_counter] + insert_new
+    status = udc.bulk_write(requests)
     return status

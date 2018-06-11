@@ -12,5 +12,6 @@ def scheduled_job():
     status = twitter_interface.post_daily(tweets=tw_f, api=api)
     db, _ = challengers.connect_db()
     status = challengers.insert_daily(db, tw_f)
+    status = challengers.update_daily(db, tweets)
 
 sched.start()
