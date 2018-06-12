@@ -4,6 +4,8 @@ import challengers
 
 sched = BlockingScheduler()
 
+DAYS = 5
+
 @sched.scheduled_job('cron', day_of_week='mon-sun', hour=17)
 def scheduled_job():
     # Run twitter interface
@@ -13,5 +15,8 @@ def scheduled_job():
     db, _ = challengers.connect_db()
     status = challengers.insert_daily(db, tw_f)
     status = challengers.update_daily(db, tweets)
+    call_users = challengers.warn_user(db, DAYS)
+    if call_users != None:
+        status = twitter_interface.warn_users(api, call_users, DAYS)
 
 sched.start()

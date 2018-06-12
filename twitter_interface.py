@@ -76,3 +76,13 @@ def post_daily(api, tweets, hashtag=HASHTAG_ENGAGE):
     ' se engajaram com o desafio {}'
     status = api.PostUpdate(message.format(len(tweets), hashtag))
     return status
+
+def warn_users(api, tweets, days):
+    users = ['@'+t['screen_name'] for t in tweets]
+    t = ' '.join(users)
+    if len(users) == 1:
+        msg = 'Hey, {}, você está à {} sem postar! {}'.format(t, days, HASHTAG_ENGAGE)
+    else:
+        msg = 'Hey, {}, vocês estão à {} sem postar! {}'.format(t, days, HASHTAG_ENGAGE)
+    status = api.PostUpdate(msg)
+    return status 

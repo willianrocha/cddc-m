@@ -68,3 +68,10 @@ def update_challengers(db, tweets):
     requests = [increment_work_days, increment_reset_counter] + insert_new
     status = udc.bulk_write(requests)
     return status
+
+def warn_user(db, days):
+    udc = db[C_UDC]
+    call_users = udc.find({'reset_counter' : {'$gt': days}})
+    if call_users != None:
+        call_users = [c for c in call_users]
+    return call_users
